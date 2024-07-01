@@ -1,5 +1,5 @@
 import './style.css'
-import { clone, part, fill_frames, compute_end, log } from './utils.ts'
+import { clone, part, fill_frames, compute_end } from './utils.ts'
 import type { Coord, Part } from './utils.ts'
 
 const main = document.createElement('canvas')
@@ -118,36 +118,27 @@ const arc =
     position(foot_right).x - waist.x!
   )
 
-const radius = Math.sqrt(
-  (position(foot_right).y - waist.y!) ** 2 +
-    (position(foot_right).x - waist.x!) ** 2
-)
-
 const { x: ox, y: oy } = position(foot_right)
+const { x: xl, y: yl } = position(foot_left)
 const stair = {
   θ: -arc + 2 * Math.PI,
   y: oy,
   x: ox,
 }
-
-// const footcycle = cycle([foot_right, foot_left])
+const dx = (xl - ox) / 90
+const dy = (yl - oy) / 90
 
 function paint_stairs() {
   let stairway = [...fill_frames(0.15, 180), ...fill_frames(0, 180 * 3)]
   stairway
   redraw_layer(scene, (ctx) => {
     ctx.beginPath()
-    for (let i = 1; i < 9; i++) {
-      ctx.fillRect(stair.x - 44.5 * i, stair.y + 4 + 18.7 * i, 80, 10)
-      ctx.fillRect(stair.x - 44.5 * -i, stair.y + 4 + 18.7 * -i, 80, 10)
+    let DX = -dx * 90,
+      DY = dy * 90
+    for (let i = 0; i < 10; i++) {
+      ctx.fillRect(stair.x - DX * i - 8, stair.y + 5 + DY * i, 70, 8)
+      ctx.fillRect(stair.x - DX * -i - 8, stair.y + 5 + DY * -i, 70, 8)
     }
-
-    ctx.fillRect(stair.x - 44.5, stair.y + 4 + 18.7, 80, 10)
-
-    ctx.fillRect(stair.x, stair.y + 4, 80, 10)
-
-    ctx.fillRect(stair.x + 44.5, stair.y + 4 - 18.7, 80, 10)
-
     ctx.closePath()
   })
 }
@@ -254,7 +245,6 @@ const swing_lower_backwards = swing_lower_forwards
 const lla_frames = cycle([...swing_lower_backwards, ...swing_lower_forwards])
 const lra_frames = cycle([...swing_lower_forwards, ...swing_lower_backwards])
 
-// LEGS
 const ull = [
   ...fill_frames(0, 90),
   ...fill_frames(45, 90),
@@ -290,8 +280,6 @@ const ulr_frames = cycle(ulr)
 const lll_frames = cycle(lll)
 const llr_frames = cycle(llr)
 
-// ! ADD FEET TURNS
-
 let is_holding = false
 
 document.addEventListener('keydown', (e) => {
@@ -306,8 +294,8 @@ let count = 0
 setInterval(() => {
   if (is_holding) {
     if (stair_frames()) {
-      stair.x += -0.49444444444
-      stair.y += 0.2077777777
+      stair.x += dx
+      stair.y += dy
       if (count % 270 == 0) {
         stair.x = ox
         stair.y = oy
@@ -328,10 +316,9 @@ setInterval(() => {
     leg_left_lower.θ += lll_frames()
     leg_right_lower.θ += llr_frames()
 
-    log(++count)
     paint()
   }
-}, 2)
+}, 1)
 
 function position(part: Part): { x: number; y: number } {
   function query(p: Part): Coord {
