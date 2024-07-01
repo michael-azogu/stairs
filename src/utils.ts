@@ -6,8 +6,6 @@ export type Part = {
   parent: Part | null
   x?: number
   y?: number
-  end_x?: number
-  end_y?: number
 }
 
 export const part = (p: Part) => p

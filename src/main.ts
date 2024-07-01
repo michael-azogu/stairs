@@ -1,5 +1,5 @@
 import './style.css'
-import { clone, part, fill_frames, compute_end } from './utils.ts'
+import { clone, part, fill_frames, compute_end, log } from './utils.ts'
 import type { Coord, Part } from './utils.ts'
 
 const main = document.createElement('canvas')
@@ -123,28 +123,31 @@ const radius = Math.sqrt(
     (position(foot_right).x - waist.x!) ** 2
 )
 
-const stair = { θ: 0 }
+const { x: ox, y: oy } = position(foot_right)
+const stair = {
+  θ: -arc + 2 * Math.PI,
+  y: oy,
+  x: ox,
+}
+
 // const footcycle = cycle([foot_right, foot_left])
+
 function paint_stairs() {
   let stairway = [...fill_frames(0.15, 180), ...fill_frames(0, 180 * 3)]
   stairway
   redraw_layer(scene, (ctx) => {
-    let { x, y } = { x: waist.x!, y: waist.y! }
     ctx.beginPath()
-    ctx.fillStyle = '#000'
-    ctx.fillRect(x, y, 60, 60)
+    for (let i = 1; i < 9; i++) {
+      ctx.fillRect(stair.x - 44.5 * i, stair.y + 4 + 18.7 * i, 80, 10)
+      ctx.fillRect(stair.x - 44.5 * -i, stair.y + 4 + 18.7 * -i, 80, 10)
+    }
 
-    ctx.fillStyle = '#000'
-    compute_end({ x, y }, stair.θ + arc, radius)
-    // ctx.fillRect(x1, y1, 60, 60)
+    ctx.fillRect(stair.x - 44.5, stair.y + 4 + 18.7, 80, 10)
 
-    ctx.fillStyle = '#000'
-    compute_end({ x, y }, stair.θ + arc, radius)
-    // ctx.fillRect(x1, y1, 60, 60)
+    ctx.fillRect(stair.x, stair.y + 4, 80, 10)
 
-    ctx.fillStyle = '#000'
-    compute_end({ x, y }, stair.θ + arc, radius)
-    // ctx.fillRect(x1, y1, 60, 60)
+    ctx.fillRect(stair.x + 44.5, stair.y + 4 - 18.7, 80, 10)
+
     ctx.closePath()
   })
 }
@@ -227,6 +230,8 @@ function paint() {
 paint()
 
 // Δθ
+const stair_frames = cycle([...fill_frames(1, 90), ...fill_frames(0, 180)])
+
 const torso_frames = cycle([
   ...fill_frames(22.5, 90 * 2),
   ...fill_frames(-22.5, 45 * 2),
@@ -286,33 +291,47 @@ const lll_frames = cycle(lll)
 const llr_frames = cycle(llr)
 
 // ! ADD FEET TURNS
+
+let is_holding = false
+
+document.addEventListener('keydown', (e) => {
+  if (e.key == 'ArrowRight') is_holding = true
+})
+
+document.addEventListener('keyup', (e) => {
+  if (e.key == 'ArrowRight') is_holding = false
+})
+
+let count = 0
 setInterval(() => {
-  torso.θ += torso_frames()
+  if (is_holding) {
+    if (stair_frames()) {
+      stair.x += -0.49444444444
+      stair.y += 0.2077777777
+      if (count % 270 == 0) {
+        stair.x = ox
+        stair.y = oy
+      }
+    }
 
-  arm_left_upper.θ += ula_frames()
-  arm_right_upper.θ += ura_frames()
+    torso.θ += torso_frames()
 
-  arm_left_lower.θ += lla_frames()
-  arm_right_lower.θ += lra_frames()
+    arm_left_upper.θ += ula_frames()
+    arm_right_upper.θ += ura_frames()
 
-  leg_left_upper.θ += ull_frames()
-  leg_right_upper.θ += ulr_frames()
+    arm_left_lower.θ += lla_frames()
+    arm_right_lower.θ += lra_frames()
 
-  leg_left_lower.θ += lll_frames()
-  leg_right_lower.θ += llr_frames()
+    leg_left_upper.θ += ull_frames()
+    leg_right_upper.θ += ulr_frames()
 
-  paint()
-}, 40)
+    leg_left_lower.θ += lll_frames()
+    leg_right_lower.θ += llr_frames()
 
-// let is_holding = false
-
-// document.addEventListener('keydown', (e) => {
-//   if (e.key == 'ArrowRight') is_holding = true
-// })
-
-// document.addEventListener('keyup', (e) => {
-//   if (e.key == 'ArrowRight') is_holding = false
-// })
+    log(++count)
+    paint()
+  }
+}, 2)
 
 function position(part: Part): { x: number; y: number } {
   function query(p: Part): Coord {
