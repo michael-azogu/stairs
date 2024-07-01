@@ -1,13 +1,5 @@
 import './style.css'
-import {
-  log,
-  clone,
-  part,
-  make,
-  fill_frames,
-  compute_end,
-  convert,
-} from './utils.ts'
+import { clone, part, fill_frames, compute_end } from './utils.ts'
 import type { Coord, Part } from './utils.ts'
 
 const main = document.createElement('canvas')
@@ -131,14 +123,11 @@ const radius = Math.sqrt(
     (position(foot_right).x - waist.x!) ** 2
 )
 
-const stair = { θ : 0}
-const footcycle = cycle([foot_right, foot_left])
+const stair = { θ: 0 }
+// const footcycle = cycle([foot_right, foot_left])
 function paint_stairs() {
-  let stairway = [
-    ...fill_frames(0.15, 180),
-    ...fill_frames(0, 180 * 3),
-  ]
-
+  let stairway = [...fill_frames(0.15, 180), ...fill_frames(0, 180 * 3)]
+  stairway
   redraw_layer(scene, (ctx) => {
     let { x, y } = { x: waist.x!, y: waist.y! }
     ctx.beginPath()
@@ -146,16 +135,16 @@ function paint_stairs() {
     ctx.fillRect(x, y, 60, 60)
 
     ctx.fillStyle = '#000'
-    compute_end({ x, y }, stair.θ +  arc, radius)
-    ctx.fillRect(x1, y1, 60, 60)
-    
+    compute_end({ x, y }, stair.θ + arc, radius)
+    // ctx.fillRect(x1, y1, 60, 60)
+
     ctx.fillStyle = '#000'
-    compute_end({ x, y }, stair.θ +  arc, radius)
-    ctx.fillRect(x1, y1, 60, 60)
-    
+    compute_end({ x, y }, stair.θ + arc, radius)
+    // ctx.fillRect(x1, y1, 60, 60)
+
     ctx.fillStyle = '#000'
-    compute_end({ x, y }, stair.θ +  arc, radius)
-    ctx.fillRect(x1, y1, 60, 60)
+    compute_end({ x, y }, stair.θ + arc, radius)
+    // ctx.fillRect(x1, y1, 60, 60)
     ctx.closePath()
   })
 }
@@ -315,15 +304,15 @@ setInterval(() => {
   paint()
 }, 40)
 
-let is_holding = false
+// let is_holding = false
 
-document.addEventListener('keydown', (e) => {
-  if (e.key == 'ArrowRight') is_holding = true
-})
+// document.addEventListener('keydown', (e) => {
+//   if (e.key == 'ArrowRight') is_holding = true
+// })
 
-document.addEventListener('keyup', (e) => {
-  if (e.key == 'ArrowRight') is_holding = false
-})
+// document.addEventListener('keyup', (e) => {
+//   if (e.key == 'ArrowRight') is_holding = false
+// })
 
 function position(part: Part): { x: number; y: number } {
   function query(p: Part): Coord {
