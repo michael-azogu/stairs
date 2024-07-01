@@ -1,4 +1,5 @@
 import step from './step.wav'
+let sound = new Audio(step)
 import './style.css'
 import { clone, part, fill_frames, compute_end } from './utils.ts'
 import type { Coord, Part } from './utils.ts'
@@ -315,7 +316,7 @@ setInterval(() => {
       stair.y += dy
     }
     if (count % 540 == 0) {
-      new Audio(step).play()
+      sound.play()
       stair.x = ox
       stair.y = oy
       count = 0
