@@ -129,15 +129,13 @@ const dx = (xl - ox) / 90
 const dy = (yl - oy) / 90
 
 function paint_stairs() {
-  let stairway = [...fill_frames(0.15, 180), ...fill_frames(0, 180 * 3)]
-  stairway
   redraw_layer(scene, (ctx) => {
     ctx.beginPath()
     let DX = -dx * 90,
       DY = dy * 90
     for (let i = 0; i < 10; i++) {
-      ctx.fillRect(stair.x - DX * i - 8, stair.y + 5 + DY * i, 70, 8)
-      ctx.fillRect(stair.x - DX * -i - 8, stair.y + 5 + DY * -i, 70, 8)
+      ctx.fillRect(stair.x - DX * i - 8, stair.y + 3 + DY * i, 70, 8)
+      ctx.fillRect(stair.x - DX * -i - 8, stair.y + 3 + DY * -i, 70, 8)
     }
     ctx.closePath()
   })
@@ -260,6 +258,9 @@ const ulr = [
   ...fill_frames(0, 90),
 ]
 
+const ull_frames = cycle(ull)
+const ulr_frames = cycle(ulr)
+
 const lll = [
   ...fill_frames(-45, 90),
   ...fill_frames(0, 90),
@@ -274,32 +275,48 @@ const llr = [
   ...fill_frames(45, 90),
 ]
 
-const ull_frames = cycle(ull)
-const ulr_frames = cycle(ulr)
-
 const lll_frames = cycle(lll)
 const llr_frames = cycle(llr)
 
-let is_holding = false
+const fl = [
+  ...fill_frames(-45, 90),
+  ...fill_frames(15, 90),
+  ...fill_frames(30, 90),
+  ...fill_frames(0, 270),
+]
 
+const fr = [
+  ...fill_frames(0, 270),
+  ...fill_frames(-45, 90),
+  ...fill_frames(15, 90),
+  ...fill_frames(30, 90),
+]
+
+const fl_frames = cycle(fl)
+const fr_frames = cycle(fr)
+
+let is_holding = false
 document.addEventListener('keydown', (e) => {
   if (e.key == 'ArrowRight') is_holding = true
 })
-
 document.addEventListener('keyup', (e) => {
   if (e.key == 'ArrowRight') is_holding = false
 })
 
 let count = 0
+
 setInterval(() => {
   if (is_holding) {
+    count++
+    
     if (stair_frames()) {
       stair.x += dx
       stair.y += dy
-      if (count % 270 == 0) {
-        stair.x = ox
-        stair.y = oy
-      }
+    }
+    if (count % 540 == 0) {
+      stair.x = ox
+      stair.y = oy
+      count = 0
     }
 
     torso.θ += torso_frames()
@@ -316,9 +333,12 @@ setInterval(() => {
     leg_left_lower.θ += lll_frames()
     leg_right_lower.θ += llr_frames()
 
+    foot_left.θ += fl_frames()
+    foot_right.θ += fr_frames()
+
     paint()
   }
-}, 1)
+}, 2)
 
 function position(part: Part): { x: number; y: number } {
   function query(p: Part): Coord {
